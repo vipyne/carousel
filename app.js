@@ -12,43 +12,23 @@ var apiCall = 'https://photorankapi-a.akamaihd.net/customers/215757/media/recent
 var url = apiCall + tokenQuery + apiKey
 
 $.ajaxSetup({
-  headers: { 'Accept': 'application/vnd.olapic.v2.1+json'}
+  headers: { 'Accept': 'application/vnd.olapic.v2.1+json' }
 })
 
 $.ajax({
   type: 'get',
   url: url,
-  // headers: {
-  //   Accept: {
-  //     json: 'application/json'
-  //   }
-  // },
-  // headers: {"Accept":"application/json"},
-  // contentType: 'application/json; charset=utf-8',
-  // contentType: 'application/vnd.olapic.v2.1+json',
-  // contentType: 'application/json',
   dataType: 'json'
 })
   .done(function (data){
-    console.log('media', data.data._embedded.media)
-    // debugger
-    // $.each(data.data._embedded, function(key,value){
-      // console.log('_embedded key', key)
-      // console.log('_embedded value', value)
-      var poop = data.data._embedded.media
-      console.log('poop', poop)
-      debugger
-      $.each(poop, function(index, object){
-
-        console.log('index',index)
-        console.log(object[index])
-        if(object[index] !== undefined){
-        $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.normal + "></li>")
-        // console.log('v.images.normal', v.images.normal)
-        }
-      })
-    // })
-
+    var olapicImages = data.data._embedded.media
+    $.each(olapicImages, function(index, object){
+      if(object !== undefined){
+        // $('.slider').append("<li class='lists'><a class='image-to-slide' href=" + object.images.thumbnail + "></a></li>")
+        $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
+      }
+    })
+    imageSliderInit()
   })
   .error(function(msg){
     console.log('error', msg)
@@ -58,30 +38,27 @@ $.ajax({
 // image slider //////////////
 
 var allImages = {
-  conformImageWidth: 200,
-  wrapperHeight: 1000000, // just a starting value
+  numberOfCarouselImages: 3,
+  conformImageWidth: 150,
+  wrapperHeight: 150,
   rightSlideClicks: 0,
   leftSlideClicks: 0,
-  lists: $('.slider')[0].children,
-  numberOfImages: $('.slider')[0].children.length,
-  images: $('.image-to-slide')
+  numberOfImages: 0
 }
 
 function imageSliderInit(){
   var imageWidth, imageHeight, newImageHeight, arrowPosition
 
-  $.each(allImages.images, function(index, value){
-    imageWidth = allImages.images[index].offsetWidth
+  $.each($('.image-to-slide'), function(index, value){
+    imageWidth = $('.image-to-slide')[index].offsetWidth
     var getHeight = allImages.conformImageWidth/imageWidth
-    imageHeight = allImages.images[index].offsetHeight
+    imageHeight = $('.image-to-slide')[index].offsetHeight
     newImageHeight = imageHeight * getHeight
-    allImages.images[index].style.height = newImageHeight + 'px'
-    if(newImageHeight < allImages.wrapperHeight){
-      allImages.wrapperHeight = newImageHeight
-    }
+    $('.image-to-slide')[index].style.height = newImageHeight + 'px'
   })
 
-  $('.wrapper').css('width', allImages.conformImageWidth * 3)
+  allImages.numberOfImages = $('.slider')[0].children.length
+  $('.wrapper').css('width', allImages.conformImageWidth * allImages.numberOfCarouselImages)
   $('.wrapper').css('height', allImages.wrapperHeight)
   $('.slider').css('width', allImages.conformImageWidth * allImages.numberOfImages)
   arrowPosition = (allImages.wrapperHeight / 2) - 15 // arrows are 30px tall
@@ -89,8 +66,10 @@ function imageSliderInit(){
   $('#triangle-left').css('margin-bottom', arrowPosition)
 }
 
+/////  need to fix the right slide logic
 function rightSlide(){
-  if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) || allImages.rightSlideClicks % allImages.numberOfImages == 0){
+  if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) || (allImages.rightSlideClicks != 0 && allImages.rightSlideClicks % allImages.numberOfImages == 0)){
+    console.log(allImages.rightSlideClicks % allImages.numberOfImages == 0)
     var $loop = $('.slider').clone()
     var $width = $('.slider').css('width')
     var w = widthFix($width)
@@ -106,7 +85,7 @@ function rightSlide(){
 }
 
 function leftSlide(){
-  if(allImages.leftSlideClicks % allImages.numberOfImages - 3 == 0){
+  if(allImages.leftSlideClicks % allImages.numberOfImages - allImages.numberOfCarouselImages == 0){
     var $loop = $('.slider').clone()
     var $width = $('.slider').css('width')
     var w = widthFix($width)
@@ -132,7 +111,7 @@ function widthFix(width){
 }
 
 
-// controllers and init //////
+// controllers ///////////////
 
 $('#triangle-right').on('click', function(){
   rightSlide()
@@ -145,8 +124,6 @@ $('#triangle-left').on('click', function(){
   allImages.leftSlideClicks += 1
   console.log('leftSlideClicks',allImages.leftSlideClicks)
 })
-
-imageSliderInit()
 
 /////////////////////////////
 })
