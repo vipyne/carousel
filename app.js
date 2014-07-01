@@ -11,35 +11,50 @@ var apiCall = 'https://photorankapi-a.akamaihd.net/customers/215757/media/recent
 
 var url = apiCall + tokenQuery + apiKey
 
-// $.ajax({
-//   url: url,
-//   // headers: {'Content-Type': 'application/json'},
-//   // contentType: 'application/json; charset=utf-8',
-//   // contentType: 'application/vnd.olapic.v2.1+json',
-//   // contentType: 'application/json',
-//   dataType: 'json',
-//   error: function(msg, oiio){
-//     console.log('error', msg)
-//     console.log('error', oiio)
-//   }
-// })
-//   .done(function(data){
-//     // console.log('horray', data)
-//     $.each(data.data._embedded, function(k,v){
-//       console.log('key', k)
-//       console.log('value', v)
-//       // debugger
-//       // var image = v._links.self.href
-//       var image = v.original_source
-//       console.log('image',image)
-//       var link = 'https:' + image
-//       console.log('link', link)
-//       // $('section').append(v.caption)
-//       $('section').append("<img src=" + image + ">")
-//       // $('section').append("<a href=" + link + tokenQuery + apiKey + ">link</a>")
-//       // $('section').append("<img src=" + link + ">")
-//     })
-//   })
+$.ajaxSetup({
+  headers: { 'Accept': 'application/vnd.olapic.v2.1+json'}
+})
+
+$.ajax({
+  type: 'get',
+  url: url,
+  // headers: {
+  //   Accept: {
+  //     json: 'application/json'
+  //   }
+  // },
+  // headers: {"Accept":"application/json"},
+  // contentType: 'application/json; charset=utf-8',
+  // contentType: 'application/vnd.olapic.v2.1+json',
+  // contentType: 'application/json',
+  dataType: 'json',
+  error: function(msg){
+    console.log('error', msg)
+  }
+})
+  .done(function (data){
+    // console.log('horray', data)
+    $.each(data.data._embedded, function(k,v){
+      console.log('_embedded key', k)
+      console.log('_embedded value', v)
+      $.each(v, function(k,v){
+        $('.slider').append("<li class='lists'><img src=" + v.images.normal + "></li>")
+        console.log('v.images.normal', v.images.normal)
+
+      })
+      // debugger
+      // debugger
+      var image = v._links.self
+      // var image = v.original_source
+      console.log('image | v._links.self',image)
+      var link = 'https:' + image
+      console.log('link', link)
+      // $('section').append(v.caption)
+      $('.api-slider').append("<li class='lists'><img src=" + image + "></li>")
+      // $('section').append("<a href=" + link + tokenQuery + apiKey + ">link</a>")
+      // $('section').append("<img src=" + link + ">")
+    })
+  })
 
 
 
