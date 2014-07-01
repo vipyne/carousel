@@ -27,35 +27,32 @@ $.ajax({
   // contentType: 'application/json; charset=utf-8',
   // contentType: 'application/vnd.olapic.v2.1+json',
   // contentType: 'application/json',
-  dataType: 'json',
-  error: function(msg){
-    console.log('error', msg)
-  }
+  dataType: 'json'
 })
   .done(function (data){
-    // console.log('horray', data)
-    $.each(data.data._embedded, function(k,v){
-      console.log('_embedded key', k)
-      console.log('_embedded value', v)
-      $.each(v, function(k,v){
-        $('.slider').append("<li class='lists'><img src=" + v.images.normal + "></li>")
-        console.log('v.images.normal', v.images.normal)
+    console.log('media', data.data._embedded.media)
+    // debugger
+    // $.each(data.data._embedded, function(key,value){
+      // console.log('_embedded key', key)
+      // console.log('_embedded value', value)
+      var poop = data.data._embedded.media
+      console.log('poop', poop)
+      debugger
+      $.each(poop, function(index, object){
 
+        console.log('index',index)
+        console.log(object[index])
+        if(object[index] !== undefined){
+        $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.normal + "></li>")
+        // console.log('v.images.normal', v.images.normal)
+        }
       })
-      // debugger
-      // debugger
-      var image = v._links.self
-      // var image = v.original_source
-      console.log('image | v._links.self',image)
-      var link = 'https:' + image
-      console.log('link', link)
-      // $('section').append(v.caption)
-      $('.api-slider').append("<li class='lists'><img src=" + image + "></li>")
-      // $('section').append("<a href=" + link + tokenQuery + apiKey + ">link</a>")
-      // $('section').append("<img src=" + link + ">")
-    })
-  })
+    // })
 
+  })
+  .error(function(msg){
+    console.log('error', msg)
+  })
 
 
 // image slider //////////////
@@ -93,7 +90,7 @@ function imageSliderInit(){
 }
 
 function rightSlide(){
-  if(allImages.rightSlideClicks == 0 || allImages.rightSlideClicks % allImages.numberOfImages == 0){
+  if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) || allImages.rightSlideClicks % allImages.numberOfImages == 0){
     var $loop = $('.slider').clone()
     var $width = $('.slider').css('width')
     var w = widthFix($width)
