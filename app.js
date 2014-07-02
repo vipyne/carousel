@@ -66,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 3,
+  numberOfCarouselImages: 4,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -138,13 +138,13 @@ function leftSlide(){
 
 function animateRight(){
   $('.slider').animate({
-    marginLeft: '+=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
+    marginLeft: '+=' + allImages.conformImageWidth + 'px'
   }, 'slow')
 }
 
 function animateLeft(){
   $('.slider').animate({
-    marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
+    marginLeft: '-=' + allImages.conformImageWidth + 'px'
   }, 'slow')
 }
 
@@ -172,12 +172,12 @@ function widthFix(width){
 /////////////////////////////
 
 $('#triangle-right').on('click', function(){
-  leftSlide()
+  rightSlide()
   allImages.rightSlideClicks += 1
 })
 
 $('#triangle-left').on('click', function(){
-  rightSlide()
+  leftSlide()
   allImages.leftSlideClicks += 1
 })
 
