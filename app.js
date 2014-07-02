@@ -107,34 +107,53 @@ function setArrowPosition(){
 /////////////////////////////
 
 function rightSlide(){
-  console.log('right', allImages.rightSlideClicks)
+  // console.log('right', allImages.rightSlideClicks)
+  var imagesMoved = (allImages.rightSlideClicks - allImages.leftSlideClicks + 1) * allImages.numberOfCarouselImages
   var differenceInClicks = allImages.rightSlideClicks - allImages.leftSlideClicks
+  // console.log('differenceInClicks', differenceInClicks)
+  // if(differenceInClicks == -1)
+  // console.log('imagesMoved', imagesMoved)
   if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) ||
     (allImages.rightSlideClicks != 0 && differenceInClicks % allImages.numberOfImages == 0) ||
     differenceInClicks == 0){
-    var $loop = $('.slider').clone()
-    var $width = $('.slider').css('width')
-    var w = widthFix($width)
-    $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
-    $.each($loop.children(), function(index, pic){
-      $('.slider').append(pic)
-    })
-    $('.slider').css('margin-left', -w)
+    changeSliderWidth(makeLoop())
+  console.log('here')
+    if(differenceInClicks == 0){
+      console.log('here 2222222')
+    $('.slider').css('margin-left', -makeLoop())
+      // changeSliderWidth(makeLoop())
+    }
+    // var $loop = $('.slider').clone()
+    // var $width = $('.slider').css('width')
+    // var w = widthFix($width)
+    // changeSliderWidth()
+    // getMoreImages($loop)
+    $('.slider').css('margin-left', -makeLoop())
+
+  }else if (imagesMoved > allImages.numberOfImages) {
+    // console.log('numberOfImages', allImages.numberOfImages)
+    var difference = imagesMoved % allImages.numberOfImages
+    var offSetNegative = difference * allImages.conformImageWidth
+    var offSetPositive = (allImages.numberOfCarouselImages * allImages.conformImageWidth) - offSetNegative
+    // console.log('difference', difference)
+    // console.log('offSetNegative', offSetNegative)
+    // console.log('offSetPositive', offSetPositive)
+    changeSliderWidth(makeLoop())
+    // var $loop = $('.slider').clone()
+    // var $width = $('.slider').css('width')
+    // var w = widthFix($width)
+    // getMoreImages($loop)
+    $('.slider').css('margin-left', (-makeLoop() - offSetPositive))
   }
   animateRight()
 }
 
 function leftSlide(){
-  var imagesMoved = (allImages.leftSlideClicks + 1) * allImages.numberOfCarouselImages + allImages.numberOfCarouselImages
+  // console.log('pooposifuasoid')
+  var imagesMoved = (allImages.leftSlideClicks - allImages.rightSlideClicks + 1) * allImages.numberOfCarouselImages + allImages.numberOfCarouselImages
   if(allImages.leftSlideClicks != 0 && (imagesMoved % allImages.numberOfImages - allImages.numberOfCarouselImages == 0) ||
     imagesMoved > allImages.numberOfImages){
-    var $loop = $('.slider').clone()
-    var $width = $('.slider').css('width')
-    var w = widthFix($width)
-    $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
-    $.each($loop.children(), function(index, pic){
-      $('.slider').append(pic)
-    })
+    changeSliderWidth(makeLoop())
   }
   animateLeft()
 }
@@ -168,7 +187,24 @@ function widthFix(width){
   return Number(num.join(''))
 }
 
+function getMoreImages(loop){
+  $.each(loop.children(), function(index, pic){
+    $('.slider').append(pic)
+  })
+}
 
+function changeSliderWidth(w){
+  $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
+}
+
+function makeLoop(){
+  var $width = $('.slider').css('width')
+  var w = widthFix($width)
+  changeSliderWidth()
+  var $loop = $('.slider').clone()
+  getMoreImages($loop)
+  return w
+}
 
 // clicks ///////////////////
 /////////////////////////////
