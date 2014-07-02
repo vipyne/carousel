@@ -2,13 +2,13 @@ $(document).ready(function(){
 /////////////////////////////
 
 
-
 // ajax api call ////////////
+/////////////////////////////
+/////////////////////////////
 
 var apiKey = '0a40a13fd9d531110b4d6515ef0d6c529acdb59e81194132356a1b8903790c18'
 var tokenQuery = '?auth_token='
 var apiCall = 'https://photorankapi-a.akamaihd.net/customers/215757/media/recent'
-
 var url = apiCall + tokenQuery + apiKey
 
 $.ajaxSetup({
@@ -21,24 +21,35 @@ $.ajax({
   dataType: 'json'
 })
   .done(function (data){
+    getCustomerName(data)
     var olapicImages = data.data._embedded.media
     $.each(olapicImages, function(index, object){
       if(object !== undefined){
-        // $('.slider').append("<li class='lists'><a class='image-to-slide' href=" + object.images.thumbnail + "></a></li>")
         $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
       }
     })
     imageSliderInit()
   })
   .error(function(msg){
-    console.log('error', msg)
+    console.log('error', msg.responseText)
   })
 
 
-// image slider //////////////
+
+
+function getCustomerName(data){
+  var customer = data.data._embedded.customer
+  var customerName = customer.name.toUpperCase()
+  $('.customer').append(customerName + '\'s recent media feed'.toUpperCase() )
+}
+
+
+// image slider /////////////
+/////////////////////////////
+/////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 3,
+  numberOfCarouselImages: 2,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -66,10 +77,11 @@ function imageSliderInit(){
   $('#triangle-left').css('margin-bottom', arrowPosition)
 }
 
-/////  need to fix the right slide logic
 function rightSlide(){
-  if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) || (allImages.rightSlideClicks != 0 && allImages.rightSlideClicks % allImages.numberOfImages == 0)){
-    console.log(allImages.rightSlideClicks % allImages.numberOfImages == 0)
+  var differenceInClicks = allImages.rightSlideClicks - allImages.leftSlideClicks
+  if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) ||
+    (allImages.rightSlideClicks != 0 && differenceInClicks % allImages.numberOfImages == 0) ||
+    differenceInClicks == 0){
     var $loop = $('.slider').clone()
     var $width = $('.slider').css('width')
     var w = widthFix($width)
@@ -111,18 +123,19 @@ function widthFix(width){
 }
 
 
-// controllers ///////////////
+
+// controllers //////////////
+/////////////////////////////
+/////////////////////////////
 
 $('#triangle-right').on('click', function(){
   rightSlide()
   allImages.rightSlideClicks += 1
-  console.log('rightSlideClicks',allImages.rightSlideClicks)
 })
 
 $('#triangle-left').on('click', function(){
   leftSlide()
   allImages.leftSlideClicks += 1
-  console.log('leftSlideClicks',allImages.leftSlideClicks)
 })
 
 /////////////////////////////

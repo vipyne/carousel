@@ -1,3 +1,9 @@
+@font-face
+{
+  font-family: Futura;
+  src: url('FuturaLT-Book.woff');
+}
+
 ul, li, div {
   text-decoration: none;
   list-style: none;
@@ -23,10 +29,21 @@ body, html {
 
 .carousel {
   text-align: center;
-  margin-top: 100px;
 }
 
+h2 {
+  font-family: Futura, arial;
+  size: 13px;
+  color: #0CB370;
+  text-align: center;
+}
 
+/*.big-container {
+  background-color: gray;
+  padding: 50px;
+  margin: 100px;
+  text-align: center;
+}*/
 
 
 
