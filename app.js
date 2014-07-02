@@ -66,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var slider = {
-  numOfImages: 7,
+  numOfImages: 4,
   imageWidth: 150,
   wrapperHeight: 150,
   rightClicks: 0,
