@@ -1,0 +1,101 @@
+@font-face
+{
+  font-family: Futura;
+  src: url('FuturaLT-Book.woff');
+}
+
+ul, li, div {
+  text-decoration: none;
+  list-style: none;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;
+}
+
+a {
+  color: green;
+}
+
+html {
+  background-color: rgba( 5, 5, 5, .2);
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+.carousel {
+  text-align: center;
+}
+
+h2 {
+  font-family: Futura, arial;
+  size: 13px;
+  color: #0CB370;
+  text-align: center;
+}
+
+
+
+/*image slider*/
+
+.container {
+  margin: 0;
+  padding: 0;
+  z-index: 500;
+}
+
+.wrapper {
+  overflow: hidden;
+}
+
+.image-to-slide {
+}
+
+.lists {
+  max-width: 100%;
+  float:left;
+}
+
+.slider {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+}
+
+.arrow {
+  margin: 0;
+  padding: 0;
+  z-index: 10;
+}
+
+#triangle-left {
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-right: 30px solid #0CB370;
+  border-bottom: 15px solid transparent;
+  margin-right: 5px;
+}
+
+#triangle-right {
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-left: 30px solid #0CB370;
+  border-bottom: 15px solid transparent;
+  left: 300px;
+  margin-left: 5px;
+}
+
+#triangle-left:hover {
+  border-right: 30px solid #43E1A7;
+}
+#triangle-right:hover {
+  border-left: 30px solid #43E1A7;
+}
