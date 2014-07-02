@@ -22,20 +22,18 @@ $.ajax({
 })
   .done(function (data){
     getCustomerName(data)
-    var olapicImages = data.data._embedded.media
-    $.each(olapicImages, function(index, object){
-      if(object !== undefined){
-        $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
-      }
-    })
+    getImages(data)
     imageSliderInit()
   })
-  .error(function(msg){
+  .fail(function(msg){
     console.log('error', msg.responseText)
   })
 
 
 
+// process ajax /////////////
+/////////////////////////////
+/////////////////////////////
 
 function getCustomerName(data){
   var customer = data.data._embedded.customer
@@ -43,13 +41,23 @@ function getCustomerName(data){
   $('.customer').append(customerName + '\'s recent media feed'.toUpperCase() )
 }
 
+function getImages(data){
+  var olapicImages = data.data._embedded.media
+  $.each(olapicImages, function(index, object){
+    if(object !== undefined){
+      $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
+    }
+  })
+}
+
+
 
 // image slider /////////////
 /////////////////////////////
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 2,
+  numberOfCarouselImages: 3,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -58,8 +66,16 @@ var allImages = {
 }
 
 function imageSliderInit(){
-  var imageWidth, imageHeight, newImageHeight, arrowPosition
+  processImages()
+  setArrowPosition()
+  allImages.numberOfImages = $('.slider')[0].children.length
+  $('.wrapper').css('width', allImages.conformImageWidth * allImages.numberOfCarouselImages)
+  $('.wrapper').css('height', allImages.wrapperHeight)
+  $('.slider').css('width', allImages.conformImageWidth * allImages.numberOfImages)
+}
 
+function processImages(){
+  var imageWidth, imageHeight, newImageHeight
   $.each($('.image-to-slide'), function(index, value){
     imageWidth = $('.image-to-slide')[index].offsetWidth
     var getHeight = allImages.conformImageWidth/imageWidth
@@ -67,12 +83,10 @@ function imageSliderInit(){
     newImageHeight = imageHeight * getHeight
     $('.image-to-slide')[index].style.height = newImageHeight + 'px'
   })
+}
 
-  allImages.numberOfImages = $('.slider')[0].children.length
-  $('.wrapper').css('width', allImages.conformImageWidth * allImages.numberOfCarouselImages)
-  $('.wrapper').css('height', allImages.wrapperHeight)
-  $('.slider').css('width', allImages.conformImageWidth * allImages.numberOfImages)
-  arrowPosition = (allImages.wrapperHeight / 2) - 15 // arrows are 30px tall
+function setArrowPosition(){
+  var arrowPosition = (allImages.wrapperHeight / 2) - 15 // arrows are 30px tall
   $('#triangle-right').css('margin-bottom', arrowPosition)
   $('#triangle-left').css('margin-bottom', arrowPosition)
 }
@@ -91,9 +105,7 @@ function rightSlide(){
     })
     $('.slider').css('margin-left', -w)
   }
-  $('.slider').animate({
-    marginLeft: '+=' + allImages.conformImageWidth + 'px'
-  }, 'slow')
+  animateRight()
 }
 
 function leftSlide(){
@@ -106,8 +118,18 @@ function leftSlide(){
       $('.slider').append(pic)
     })
   }
+  animateLeft()
+}
+
+function animateRight(){
   $('.slider').animate({
-    marginLeft: '-=' + allImages.conformImageWidth + 'px'
+    marginLeft: '+=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
+  }, 'slow')
+}
+
+function animateLeft(){
+  $('.slider').animate({
+    marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
 
@@ -124,7 +146,7 @@ function widthFix(width){
 
 
 
-// controllers //////////////
+// clicks ///////////////////
 /////////////////////////////
 /////////////////////////////
 
