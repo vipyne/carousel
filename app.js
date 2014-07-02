@@ -66,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 4,
+  numberOfCarouselImages: 3,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -107,44 +107,41 @@ function setArrowPosition(){
 /////////////////////////////
 
 function rightSlide(){
+  var imagesMoved = (allImages.rightSlideClicks - allImages.leftSlideClicks + 1) * allImages.numberOfCarouselImages
   var differenceInClicks = allImages.rightSlideClicks - allImages.leftSlideClicks
   if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) ||
     (allImages.rightSlideClicks != 0 && differenceInClicks % allImages.numberOfImages == 0) ||
     differenceInClicks == 0){
-    var $loop = $('.slider').clone()
-    var $width = $('.slider').css('width')
-    var w = widthFix($width)
-    $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
-    $.each($loop.children(), function(index, pic){
-      $('.slider').append(pic)
-    })
-    $('.slider').css('margin-left', -w)
+    makeLoopAndGetWidth()
+    $('.slider').css('margin-left', -makeLoopAndGetWidth())
+  }else if (imagesMoved > allImages.numberOfImages && differenceInClicks < (allImages.numberOfImages / allImages.numberOfCarouselImages + 1) ) {
+    var difference = imagesMoved % allImages.numberOfImages
+    var offSetNegative = difference * allImages.conformImageWidth
+    var offSetPositive = (allImages.numberOfCarouselImages * allImages.conformImageWidth) - offSetNegative
+    makeLoopAndGetWidth()
+    $('.slider').css('margin-left', (-makeLoopAndGetWidth() - offSetPositive))
   }
   animateRight()
 }
 
 function leftSlide(){
-  if(allImages.leftSlideClicks % allImages.numberOfImages - allImages.numberOfCarouselImages == 0){
-    var $loop = $('.slider').clone()
-    var $width = $('.slider').css('width')
-    var w = widthFix($width)
-    $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
-    $.each($loop.children(), function(index, pic){
-      $('.slider').append(pic)
-    })
+  var imagesMoved = (allImages.leftSlideClicks - allImages.rightSlideClicks + 1) * allImages.numberOfCarouselImages + allImages.numberOfCarouselImages
+  if(allImages.leftSlideClicks != 0 && (imagesMoved % allImages.numberOfImages - allImages.numberOfCarouselImages == 0) ||
+    imagesMoved > allImages.numberOfImages){
+    makeLoopAndGetWidth()
   }
   animateLeft()
 }
 
 function animateRight(){
   $('.slider').animate({
-    marginLeft: '+=' + allImages.conformImageWidth + 'px'
+    marginLeft: '+=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
 
 function animateLeft(){
   $('.slider').animate({
-    marginLeft: '-=' + allImages.conformImageWidth + 'px'
+    marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
 
@@ -165,6 +162,20 @@ function widthFix(width){
   return Number(num.join(''))
 }
 
+function getMoreImages(loop){
+  $.each(loop.children(), function(index, pic){
+    $('.slider').append(pic)
+  })
+}
+
+function makeLoopAndGetWidth(){
+  var $loop = $('.slider').clone()
+  var $width = $('.slider').css('width')
+  var w = widthFix($width)
+  $('.slider').css('width', w + (allImages.conformImageWidth * allImages.numberOfImages) )
+  getMoreImages($loop)
+  return w
+}
 
 
 // clicks ///////////////////
@@ -180,6 +191,7 @@ $('#triangle-left').on('click', function(){
   rightSlide()
   allImages.rightSlideClicks += 1
 })
+
 
 /////////////////////////////
 })
