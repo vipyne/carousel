@@ -168,12 +168,12 @@ function widthFix(width){
 /////////////////////////////
 
 $('#triangle-right').on('click', function(){
-  rightSlide()
+  leftSlide()
   allImages.rightSlideClicks += 1
 })
 
 $('#triangle-left').on('click', function(){
-  leftSlide()
+  rightSlide()
   allImages.leftSlideClicks += 1
 })
 
