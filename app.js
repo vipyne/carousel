@@ -52,12 +52,12 @@ function getImages(data){
 
 
 
-// image slider /////////////
+// image slider init ////////
 /////////////////////////////
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 3,
+  numberOfCarouselImages: 4,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -90,6 +90,12 @@ function setArrowPosition(){
   $('#triangle-right').css('margin-bottom', arrowPosition)
   $('#triangle-left').css('margin-bottom', arrowPosition)
 }
+
+
+
+// image slider animation ///
+/////////////////////////////
+/////////////////////////////
 
 function rightSlide(){
   var differenceInClicks = allImages.rightSlideClicks - allImages.leftSlideClicks
@@ -132,6 +138,12 @@ function animateLeft(){
     marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
+
+
+
+// image slider util ////////
+/////////////////////////////
+/////////////////////////////
 
 function widthFix(width){
   num = []
