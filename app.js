@@ -20,11 +20,10 @@ $.ajax({
   url: url,
   dataType: 'json'
 })
-  .done(function (data){
-    getCustomerName(data)
+  .done(function(data){
     getImages(data)
     imageSliderInit()
-    $( 'a' ).imageLightbox()
+    $('a').imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
@@ -43,7 +42,12 @@ function getCustomerName(data){
 }
 
 function getImages(data){
-  var olapicImages = data.data._embedded.media
+  if(data.data._embedded.media != undefined){
+    var olapicImages = data.data._embedded.media
+    getCustomerName(data)
+  }else{
+    var olapicImages = data.data._embedded
+  }
   $.each(olapicImages, function(index, object){
     if(object !== undefined){
       var thumb = object.images.thumbnail
@@ -62,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 2,
+  numberOfCarouselImages: 3,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
