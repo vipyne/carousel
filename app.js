@@ -66,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 4,
+  numberOfCarouselImages: 7,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,
@@ -107,6 +107,7 @@ function setArrowPosition(){
 /////////////////////////////
 
 function rightSlide(){
+  console.log('right', allImages.rightSlideClicks)
   var differenceInClicks = allImages.rightSlideClicks - allImages.leftSlideClicks
   if((allImages.rightSlideClicks == 0 && allImages.leftSlideClicks == 0) ||
     (allImages.rightSlideClicks != 0 && differenceInClicks % allImages.numberOfImages == 0) ||
@@ -124,7 +125,9 @@ function rightSlide(){
 }
 
 function leftSlide(){
-  if(allImages.leftSlideClicks % allImages.numberOfImages - allImages.numberOfCarouselImages == 0){
+  var imagesMoved = (allImages.leftSlideClicks + 1) * allImages.numberOfCarouselImages + allImages.numberOfCarouselImages
+  if(allImages.leftSlideClicks != 0 && (imagesMoved % allImages.numberOfImages - allImages.numberOfCarouselImages == 0) ||
+    imagesMoved > allImages.numberOfImages){
     var $loop = $('.slider').clone()
     var $width = $('.slider').css('width')
     var w = widthFix($width)
@@ -138,13 +141,13 @@ function leftSlide(){
 
 function animateRight(){
   $('.slider').animate({
-    marginLeft: '+=' + allImages.conformImageWidth + 'px'
+    marginLeft: '+=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
 
 function animateLeft(){
   $('.slider').animate({
-    marginLeft: '-=' + allImages.conformImageWidth + 'px'
+    marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
   }, 'slow')
 }
 
