@@ -24,6 +24,7 @@ $.ajax({
     getCustomerName(data)
     getImages(data)
     imageSliderInit()
+    $( 'a' ).imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
@@ -45,7 +46,11 @@ function getImages(data){
   var olapicImages = data.data._embedded.media
   $.each(olapicImages, function(index, object){
     if(object !== undefined){
-      $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
+      var thumb = object.images.thumbnail
+      var full = object.images.normal
+      var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
+      var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
+      $('.slider').append(fullDOMString)
     }
   })
 }
@@ -57,7 +62,7 @@ function getImages(data){
 /////////////////////////////
 
 var allImages = {
-  numberOfCarouselImages: 4,
+  numberOfCarouselImages: 2,
   conformImageWidth: 150,
   wrapperHeight: 150,
   rightSlideClicks: 0,

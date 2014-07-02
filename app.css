@@ -99,3 +99,12 @@ h2 {
 #triangle-right:hover {
   border-left: 30px solid #43E1A7;
 }
+
+
+
+/*image lightbox*/
+
+#imagelightbox {
+  position: fixed;
+  z-index: 9999;
+}
