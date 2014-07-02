@@ -20,10 +20,10 @@ $.ajax({
   url: url,
   dataType: 'json'
 })
-  .done(function (data){
-    getCustomerName(data)
+  .done(function(data){
     getImages(data)
     imageSliderInit()
+    $('a').imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
@@ -42,10 +42,19 @@ function getCustomerName(data){
 }
 
 function getImages(data){
-  var olapicImages = data.data._embedded.media
+  if(data.data._embedded.media != undefined){
+    var olapicImages = data.data._embedded.media
+    getCustomerName(data)
+  }else{
+    var olapicImages = data.data._embedded
+  }
   $.each(olapicImages, function(index, object){
     if(object !== undefined){
-      $('.slider').append("<li class='lists'><img class='image-to-slide' src=" + object.images.thumbnail + "></li>")
+      var thumb = object.images.thumbnail
+      var full = object.images.normal
+      var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
+      var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
+      $('.slider').append(fullDOMString)
     }
   })
 }
@@ -129,13 +138,13 @@ function leftSlide(){
 
 function animateRight(){
   $('.slider').animate({
-    marginLeft: '+=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
+    marginLeft: '+=' + allImages.conformImageWidth + 'px'
   }, 'slow')
 }
 
 function animateLeft(){
   $('.slider').animate({
-    marginLeft: '-=' + allImages.conformImageWidth * allImages.numberOfCarouselImages + 'px'
+    marginLeft: '-=' + allImages.conformImageWidth + 'px'
   }, 'slow')
 }
 
