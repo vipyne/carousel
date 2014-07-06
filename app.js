@@ -85,19 +85,16 @@ function imageSliderInit(){
   $('.slider').css('width', slider.imageWidth * slider.totalImages)
   slider.loop = $('.slider').clone()
   slider.loopCopy = $('.slider').clone()
-    console.log('slider length', $('.slider').children().length)
-    console.log('slider.loop length', slider.loop.children().length)
-    console.log('slider.loopCopy length', slider.loopCopy.children().length)
 }
 
 function processImages(){
   var originalWidth, imageHeight, newImageHeight
-  $.each($('.image-to-slide'), function(index, value){
-    originalWidth = $('.image-to-slide')[index].offsetWidth
-    var getHeight = slider.imageWidth/originalWidth
-    imageHeight = $('.image-to-slide')[index].offsetHeight
+  $.each($('.image-to-slide'), function(index, image){
+    originalWidth = image.offsetWidth
+    var getHeight = slider.imageWidth / originalWidth
+    imageHeight = image.offsetHeight
     newImageHeight = imageHeight * getHeight
-    $('.image-to-slide')[index].style.height = newImageHeight + 'px'
+    image.style.height = newImageHeight + 'px'
   })
 }
 
