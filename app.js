@@ -83,6 +83,7 @@ function imageSliderInit(){
   $('.wrapper').css('width', slider.imageWidth * slider.numOfImages)
   $('.wrapper').css('height', slider.wrapperHeight)
   $('.slider').css('width', slider.imageWidth * slider.totalImages)
+  $('.arrow').css('display', 'inherit')
   slider.loop = $('.slider').clone()
   slider.loopCopy = $('.slider').clone()
 }
