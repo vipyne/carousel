@@ -66,12 +66,13 @@ function getImages(data){
 /////////////////////////////
 
 var slider = {
-  numOfImages: 4,
+  numOfImages: 5,
   imageWidth: 150,
   wrapperHeight: 150,
   rightClicks: 0,
   leftClicks: 0,
   totalImages: 0,
+  sWidth: 0,
   loop: null,
   loopCopy: null
 }
@@ -84,6 +85,7 @@ function imageSliderInit(){
   $('.wrapper').css('height', slider.wrapperHeight)
   $('.slider').css('width', slider.imageWidth * slider.totalImages)
   $('.arrow').css('display', 'inherit')
+  slider.sWidth = slider.numOfImages * slider.imageWidth
   slider.loop = $('.slider').clone()
   slider.loopCopy = $('.slider').clone()
 }
@@ -112,35 +114,34 @@ function setArrowPosition(){
 /////////////////////////////
 
 function rightSlide(){
-  console.log('slider.totalImages', slider.totalImages)
   var imagesMoved = (slider.rightClicks - slider.leftClicks + 1) * slider.numOfImages
   if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
     (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
     differenceInClicks() == 0){
-    console.log('rightSlide RE-UP AAAAAA---------')
     reUp()
-    reUp()
-    $('.slider').css('margin-left', -getWidth())
-    console.log('slider length', $('.slider').children().length)
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    var ml = $('.slider').css('margin-left')
+    $('.slider').css('margin-left', widthFix(ml) - slider.imageWidth * slider.totalImages)
   }else if (imagesMoved > slider.totalImages && differenceInClicks() < (slider.totalImages / slider.numOfImages + 1) ) {
     var offSetNegative = enoughImagesMoved() * slider.imageWidth
-    var offSetPositive = (slider.numOfImages * slider.imageWidth) - offSetNegative
+    var offSetPositive = (slider.numOfImages * slider.imageWidth) - Math.abs(offSetNegative)
     console.log('offSetNegative', offSetNegative)
     console.log('offSetPositive', offSetPositive)
-    console.log('rightSlide RE-UP ______BBBBB')
     reUp()
-    $('.slider').css('margin-left', (-getWidth() - offSetPositive) - slider.numOfImages * slider.imageWidth)
-    console.log('slider length', $('.slider').children().length)
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    var ml = $('.slider').css('margin-left')
+    $('.slider').css('margin-left', (widthFix(ml) - slider.imageWidth * slider.totalImages) - offSetPositive )
+    // $('.slider').css('margin-left', (-getWidth() - offSetPositive) - slider.numOfImages * slider.imageWidth)
   }
   animateRight()
 }
 
 function leftSlide(){
-  if(slider.leftClicks != 0 && (enoughImagesMoved() % slider.totalImages - slider.numOfImages == 0) ||
-    enoughImagesMoved() > slider.totalImages){
-    console.log('leftSlide RE-UP')
-    getWidth()
+  var totalWidth = widthFix($('.slider').css('width'))
+  var marginLeft = Math.abs(widthFix($('.slider').css('margin-left')))
+  if(totalWidth < marginLeft + slider.sWidth * 2){
     reUp()
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
   }
   animateLeft()
 }
@@ -191,10 +192,7 @@ function reUp(){
 
 function getWidth(){
   var $width = $('.slider').css('width')
-  var w = widthFix($width)
-  $('.slider').css('width', w + (slider.imageWidth * slider.totalImages) )
-  console.log('getWidth', w/150)
-  return w
+  return widthFix($width)
 }
 
 function enoughImagesMoved(){
