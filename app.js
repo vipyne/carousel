@@ -66,7 +66,7 @@ function getImages(data){
 /////////////////////////////
 
 var slider = {
-  numOfImages: 5,
+  numOfImages: 4,
   imageWidth: 150,
   wrapperHeight: 150,
   rightClicks: 0,
@@ -114,31 +114,23 @@ function setArrowPosition(){
 /////////////////////////////
 
 function rightSlide(){
-  var imagesMoved = (slider.rightClicks - slider.leftClicks + 1) * slider.numOfImages
+  var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
+  var sliderOriginalWidth = slider.totalImages * slider.imageWidth
   if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
     (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
-    differenceInClicks() == 0){
+    differenceInClicks() == 0 || marginLeft <= slider.sWidth){
     reUp()
     $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
     var ml = $('.slider').css('margin-left')
-    $('.slider').css('margin-left', widthFix(ml) - slider.imageWidth * slider.totalImages)
-  }else if (imagesMoved > slider.totalImages && differenceInClicks() < (slider.totalImages / slider.numOfImages + 1) ) {
-    var offSetNegative = enoughImagesMoved() * slider.imageWidth
-    var offSetPositive = (slider.numOfImages * slider.imageWidth) - Math.abs(offSetNegative)
-    console.log('offSetNegative', offSetNegative)
-    console.log('offSetPositive', offSetPositive)
-    reUp()
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
-    var ml = $('.slider').css('margin-left')
-    $('.slider').css('margin-left', (widthFix(ml) - slider.imageWidth * slider.totalImages) - offSetPositive )
-    // $('.slider').css('margin-left', (-getWidth() - offSetPositive) - slider.numOfImages * slider.imageWidth)
+    var basicMove = numFix(ml)
+    $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
   }
   animateRight()
 }
 
 function leftSlide(){
-  var totalWidth = widthFix($('.slider').css('width'))
-  var marginLeft = Math.abs(widthFix($('.slider').css('margin-left')))
+  var totalWidth = numFix($('.slider').css('width'))
+  var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
   if(totalWidth < marginLeft + slider.sWidth * 2){
     reUp()
     $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
@@ -164,7 +156,7 @@ function animateLeft(){
 /////////////////////////////
 /////////////////////////////
 
-function widthFix(width){
+function numFix(width){
   num = []
   for ( var i = 0; i < width.length; i++ ){
     var n = Number(width[i])
@@ -192,12 +184,11 @@ function reUp(){
 
 function getWidth(){
   var $width = $('.slider').css('width')
-  return widthFix($width)
+  return numFix($width)
 }
 
 function enoughImagesMoved(){
-  var imagesMoved = (slider.leftClicks - slider.rightClicks + 1) * slider.numOfImages + slider.numOfImages
-  console.log('enoughImagesMoved', imagesMoved % slider.totalImages)
+  var imagesMoved = (Math.abs(slider.leftClicks - slider.rightClicks) + 1) * slider.numOfImages + slider.numOfImages
   return imagesMoved % slider.totalImages
 }
 
@@ -214,13 +205,11 @@ function differenceInClicks(){
 $('#triangle-right').on('click', function(){
   leftSlide()
   slider.leftClicks += 1
-  console.log('left click', slider.leftClicks)
 })
 
 $('#triangle-left').on('click', function(){
   rightSlide()
   slider.rightClicks += 1
-  console.log('right click', slider.rightClicks)
 })
 
 
