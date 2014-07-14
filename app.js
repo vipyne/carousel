@@ -2,7 +2,7 @@ $(document).ready(function(){
 /////////////////////////////
 
 
-// ajax api call ////////////
+// ajax api calls ///////////
 /////////////////////////////
 /////////////////////////////
 
@@ -24,8 +24,8 @@ $.ajax({
     getImages(data)
     getCustomerName(data)
     imageSliderInit()
-    $('a').imageLightbox()
     getNextUrl(data)
+    $('a').imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
@@ -38,9 +38,9 @@ function getNewImages(){
   dataType: 'json'
 })
   .done(function(data){
-    console.log('next data', data)
-    getNextUrl(data)
     getImages(data)
+    getNextUrl(data)
+    $('a').imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
@@ -62,7 +62,6 @@ function getCustomerName(data){
 function getImages(data){
   if(data.data._embedded.media != undefined){
     var olapicImages = data.data._embedded.media
-    // getCustomerName(data)
   }else{
     var olapicImages = data.data._embedded
   }
@@ -80,7 +79,6 @@ function getImages(data){
 function getNextUrl(data){
   var link = data.data._links.next.href
   slider.next = '&next_id=' + link.match(/next_id=(.*)/)[1]
-  console.log('slider.next', slider.next)
 }
 
 
@@ -144,7 +142,7 @@ function rightSlide(){
   if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
     (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
     differenceInClicks() == 0 || marginLeft <= slider.sWidth){
-    reUp()
+    reUpRight()
     $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
     var ml = $('.slider').css('margin-left')
     var basicMove = numFix(ml)
@@ -157,7 +155,7 @@ function leftSlide(){
   var totalWidth = numFix($('.slider').css('width'))
   var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
   if(totalWidth < marginLeft + slider.sWidth * 2){
-    reUp()
+    reUpLeft()
     $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
   }
   animateLeft()
@@ -202,11 +200,14 @@ function makeMoreImages(){
   slider.loop = slider.loopCopy.clone()
 }
 
-function reUp(){
-  console.log('reup')
+function reUpLeft(){
   getNewImages()
-  // getMoreImages(slider.loop)
-  // makeMoreImages(slider.loop)
+  getMoreImages(slider.loop)
+}
+
+function reUpRight(){
+  getMoreImages(slider.loop)
+  makeMoreImages()
 }
 
 function getWidth(){
