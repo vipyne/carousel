@@ -22,12 +22,30 @@ $.ajax({
 })
   .done(function(data){
     getImages(data)
+    getCustomerName(data)
     imageSliderInit()
     $('a').imageLightbox()
+    getNextUrl(data)
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
   })
+
+function getNewImages(){
+  $.ajax({
+  type: 'get',
+  url: url + slider.next,
+  dataType: 'json'
+})
+  .done(function(data){
+    console.log('next data', data)
+    getNextUrl(data)
+    getImages(data)
+  })
+  .fail(function(msg){
+    console.log('error', msg.responseText)
+  })
+}
 
 
 
@@ -44,7 +62,7 @@ function getCustomerName(data){
 function getImages(data){
   if(data.data._embedded.media != undefined){
     var olapicImages = data.data._embedded.media
-    getCustomerName(data)
+    // getCustomerName(data)
   }else{
     var olapicImages = data.data._embedded
   }
@@ -59,6 +77,12 @@ function getImages(data){
   })
 }
 
+function getNextUrl(data){
+  var link = data.data._links.next.href
+  slider.next = '&next_id=' + link.match(/next_id=(.*)/)[1]
+  console.log('slider.next', slider.next)
+}
+
 
 
 // image slider init ////////
@@ -66,7 +90,7 @@ function getImages(data){
 /////////////////////////////
 
 var slider = {
-  numOfImages: 4,
+  numOfImages: 7,
   imageWidth: 150,
   wrapperHeight: 150,
   rightClicks: 0,
@@ -74,7 +98,8 @@ var slider = {
   totalImages: 0,
   sWidth: 0,
   loop: null,
-  loopCopy: null
+  loopCopy: null,
+  next: ''
 }
 
 function imageSliderInit(){
@@ -178,8 +203,10 @@ function makeMoreImages(){
 }
 
 function reUp(){
-  getMoreImages(slider.loop)
-  makeMoreImages(slider.loop)
+  console.log('reup')
+  getNewImages()
+  // getMoreImages(slider.loop)
+  // makeMoreImages(slider.loop)
 }
 
 function getWidth(){
