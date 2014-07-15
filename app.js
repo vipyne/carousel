@@ -88,7 +88,7 @@ function getNextUrl(data){
 /////////////////////////////
 
 var slider = {
-  numOfImages: 7,
+  numOfImages: 4,
   imageWidth: 150,
   wrapperHeight: 150,
   rightClicks: 0,
@@ -143,6 +143,7 @@ function rightSlide(){
     (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
     differenceInClicks() == 0 || marginLeft <= slider.sWidth){
     reUpRight()
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
     var ml = $('.slider').css('margin-left')
     var basicMove = numFix(ml)
     $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
@@ -161,7 +162,6 @@ function leftSlide(){
 
 function animateRight(){
   setTimeout(function(){
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
     $('.slider').animate({
       marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
     }, 'slow')
