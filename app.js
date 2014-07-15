@@ -101,7 +101,7 @@ var slider = {
 }
 
 function imageSliderInit(){
-  processImages()
+  processImages() // moot for now cause of thumbnails in api, but useful if api changes
   setArrowPosition()
   slider.totalImages = $('.slider')[0].children.length
   $('.wrapper').css('width', slider.imageWidth * slider.numOfImages)
@@ -143,7 +143,6 @@ function rightSlide(){
     (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
     differenceInClicks() == 0 || marginLeft <= slider.sWidth){
     reUpRight()
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
     var ml = $('.slider').css('margin-left')
     var basicMove = numFix(ml)
     $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
@@ -156,21 +155,26 @@ function leftSlide(){
   var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
   if(totalWidth < marginLeft + slider.sWidth * 2){
     reUpLeft()
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
   }
   animateLeft()
 }
 
 function animateRight(){
-  $('.slider').animate({
-    marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
-  }, 'slow')
+  setTimeout(function(){
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    $('.slider').animate({
+      marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
+    }, 'slow')
+  }, 200)
 }
 
 function animateLeft(){
-  $('.slider').animate({
-    marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
-  }, 'slow')
+  setTimeout(function(){
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    $('.slider').animate({
+      marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
+    }, 'slow')
+  }, 200)
 }
 
 
@@ -202,7 +206,6 @@ function makeMoreImages(){
 
 function reUpLeft(){
   getNewImages()
-  getMoreImages(slider.loop)
 }
 
 function reUpRight(){
