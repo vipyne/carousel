@@ -73,6 +73,7 @@ function getImages(data){
       var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
       $('.slider').append(fullDOMString)
     }
+    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
   })
 }
 
@@ -97,7 +98,8 @@ var slider = {
   sWidth: 0,
   loop: null,
   loopCopy: null,
-  next: ''
+  next: '',
+  onTheMove: false
 }
 
 function imageSliderInit(){
@@ -161,20 +163,21 @@ function leftSlide(){
 }
 
 function animateRight(){
+  $('.slider').animate({
+    marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
+  }, 'slow')
   setTimeout(function(){
-    $('.slider').animate({
-      marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
-    }, 'slow')
-  }, 200)
+    slider.onTheMove = false
+  }, 750)
 }
 
 function animateLeft(){
+  $('.slider').animate({
+    marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
+  }, 'slow')
   setTimeout(function(){
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
-    $('.slider').animate({
-      marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
-    }, 'slow')
-  }, 200)
+    slider.onTheMove = false
+  }, 750)
 }
 
 
@@ -234,13 +237,23 @@ function differenceInClicks(){
 /////////////////////////////
 
 $('#triangle-right').on('click', function(){
-  leftSlide()
-  slider.leftClicks += 1
+  if(slider.onTheMove){
+    return
+  }else{
+    slider.onTheMove = true
+    leftSlide()
+    slider.leftClicks += 1
+  }
 })
 
 $('#triangle-left').on('click', function(){
-  rightSlide()
-  slider.rightClicks += 1
+  if(slider.onTheMove){
+    return
+  }else{
+    slider.onTheMove = true
+    rightSlide()
+    slider.rightClicks += 1
+  }
 })
 
 
