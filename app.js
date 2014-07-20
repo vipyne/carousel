@@ -21,67 +21,77 @@ $.ajax({
   dataType: 'json'
 })
   .done(function(data){
-    getImages(data)
-    getCustomerName(data)
+    processAjax.getImages(data)
+    processAjax.getCustomerName(data)
     imageSliderInit()
-    getNextUrl(data)
+    processAjax.getNextUrl(data)
     $('a').imageLightbox()
   })
   .fail(function(msg){
     console.log('error', msg.responseText)
   })
 
-function getNewImages(){
-  $.ajax({
-  type: 'get',
-  url: url + slider.next,
-  dataType: 'json'
-})
-  .done(function(data){
-    getImages(data)
-    getNextUrl(data)
-    $('a').imageLightbox()
-  })
-  .fail(function(msg){
-    console.log('error', msg.responseText)
-  })
-}
 
 
 
 // process ajax /////////////
 /////////////////////////////
 /////////////////////////////
+var processAjax = (function(){
 
-function getCustomerName(data){
-  var customer = data.data._embedded.customer
-  var customerName = customer.name.toUpperCase()
-  $('.customer').append(customerName + '\'s recent media feed'.toUpperCase() )
-}
-
-function getImages(data){
-  if(data.data._embedded.media != undefined){
-    var olapicImages = data.data._embedded.media
-  }else{
-    var olapicImages = data.data._embedded
+  var getCustomerName = function(data){
+    var customer = data.data._embedded.customer
+    var customerName = customer.name.toUpperCase()
+    $('.customer').append(customerName + '\'s recent media feed'.toUpperCase() )
   }
-  $.each(olapicImages, function(index, object){
-    if(object !== undefined){
-      var thumb = object.images.thumbnail
-      var full = object.images.normal
-      var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
-      var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
-      $('.slider').append(fullDOMString)
+
+  var getImages = function(data){
+    if(data.data._embedded.media != undefined){
+      var olapicImages = data.data._embedded.media
+    }else{
+      var olapicImages = data.data._embedded
     }
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    $.each(olapicImages, function(index, object){
+      if(object !== undefined){
+        var thumb = object.images.thumbnail
+        var full = object.images.normal
+        var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
+        var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
+        $('.slider').append(fullDOMString)
+      }
+      $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+    })
+  }
+
+  var getNextUrl = function(data){
+    var link = data.data._links.next.href
+    slider.next = '&next_id=' + link.match(/next_id=(.*)/)[1]
+  }
+
+  var getNewImages = function(){
+    $.ajax({
+    type: 'get',
+    url: url + slider.next,
+    dataType: 'json'
   })
-}
+    .done(function(data){
+      processAjax.getImages(data)
+      processAjax.getNextUrl(data)
+      $('a').imageLightbox()
+    })
+    .fail(function(msg){
+      console.log('error', msg.responseText)
+    })
+  }
 
-function getNextUrl(data){
-  var link = data.data._links.next.href
-  slider.next = '&next_id=' + link.match(/next_id=(.*)/)[1]
-}
+  return {
+    getCustomerName: getCustomerName,
+    getImages: getImages,
+    getNextUrl: getNextUrl,
+    getNewImages: getNewImages
+  }
 
+})()
 
 
 // image slider init ////////
@@ -137,100 +147,121 @@ function setArrowPosition(){
 // image slider animation ///
 /////////////////////////////
 /////////////////////////////
+var sliderAnimate = (function(slid){
 
-function rightSlide(){
-  var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
-  var sliderOriginalWidth = slider.totalImages * slider.imageWidth
-  if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
-    (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
-    differenceInClicks() == 0 || marginLeft <= slider.sWidth){
-    reUpRight()
-    $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
-    var ml = $('.slider').css('margin-left')
-    var basicMove = numFix(ml)
-    $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
+  var rightSlide = function(){
+    var marginLeft = Math.abs(sliderUtilities.numFix($('.slider').css('margin-left')))
+    var sliderOriginalWidth = slider.totalImages * slider.imageWidth
+    if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
+      (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
+      differenceInClicks() == 0 || marginLeft <= slider.sWidth){
+      sliderUtilities.reUpRight()
+      $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+      var ml = $('.slider').css('margin-left')
+      var basicMove =sliderUtilities.numFix(ml)
+      $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
+    }
+    this.animateRight()
   }
-  animateRight()
-}
 
-function leftSlide(){
-  var totalWidth = numFix($('.slider').css('width'))
-  var marginLeft = Math.abs(numFix($('.slider').css('margin-left')))
-  if(totalWidth < marginLeft + slider.sWidth * 2){
-    reUpLeft()
+  var leftSlide = function(){
+    var totalWidth =sliderUtilities.numFix($('.slider').css('width'))
+    var marginLeft = Math.abs(sliderUtilities.numFix($('.slider').css('margin-left')))
+    if(totalWidth < marginLeft + slider.sWidth * 2){
+      sliderUtilities.reUpLeft()
+    }
+    this.animateLeft()
   }
-  animateLeft()
-}
 
-function animateRight(){
-  $('.slider').animate({
-    marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
-  }, 'slow')
-  setTimeout(function(){
-    slider.onTheMove = false
-  }, 750)
-}
+  var animateRight = function(){
+    $('.slider').animate({
+      marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
+    }, 'slow')
+    setTimeout(function(){
+      slider.onTheMove = false
+    }, 750)
+  }
 
-function animateLeft(){
-  $('.slider').animate({
-    marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
-  }, 'slow')
-  setTimeout(function(){
-    slider.onTheMove = false
-  }, 750)
-}
+  var animateLeft = function(){
+    $('.slider').animate({
+      marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
+    }, 'slow')
+    setTimeout(function(){
+      slider.onTheMove = false
+    }, 750)
+  }
 
+  return {
+    rightSlide: rightSlide,
+    leftSlide: leftSlide,
+    animateRight: animateRight,
+    animateLeft: animateLeft
+  }
+
+})()
 
 
 // image slider util ////////
 /////////////////////////////
 /////////////////////////////
+var sliderUtilities = (function(){
 
-function numFix(width){
-  num = []
-  for ( var i = 0; i < width.length; i++ ){
-    var n = Number(width[i])
-    if(isNaN(n) != true){
-      num.push(n)
+  var numFix = function(width){
+    num = []
+    for ( var i = 0; i < width.length; i++ ){
+      var n = Number(width[i])
+      if(isNaN(n) != true){
+        num.push(n)
+      }
     }
+    return Number(num.join(''))
   }
-  return Number(num.join(''))
-}
 
-function getMoreImages(loop){
-  $.each(loop.children(), function(index, image){
-    $('.slider').append(image)
-  })
-}
+  var getMoreImages = function(loop){
+    $.each(loop.children(), function(index, image){
+      $('.slider').append(image)
+    })
+  }
 
-function makeMoreImages(){
-  slider.loop = slider.loopCopy.clone()
-}
+  var makeMoreImages = function(){
+    slider.loop = slider.loopCopy.clone()
+  }
 
-function reUpLeft(){
-  getNewImages()
-}
+  var reUpLeft = function(){
+    processAjax.getNewImages()
+  }
 
-function reUpRight(){
-  getMoreImages(slider.loop)
-  makeMoreImages()
-}
+  var reUpRight = function(){
+    this.getMoreImages(slider.loop)
+    this.makeMoreImages()
+  }
 
-function getWidth(){
-  var $width = $('.slider').css('width')
-  return numFix($width)
-}
+  var getWidth = function(){
+    var $width = $('.slider').css('width')
+    return this.numFix($width)
+  }
 
-function enoughImagesMoved(){
-  var imagesMoved = (Math.abs(slider.leftClicks - slider.rightClicks) + 1) * slider.numOfImages + slider.numOfImages
-  return imagesMoved % slider.totalImages
-}
+  var enoughImagesMoved = function(){
+    var imagesMoved = (Math.abs(slider.leftClicks - slider.rightClicks) + 1) * slider.numOfImages + slider.numOfImages
+    return imagesMoved % slider.totalImages
+  }
 
-function differenceInClicks(){
-  return slider.rightClicks - slider.leftClicks
-}
+  var differenceInClicks = function(){
+    return slider.rightClicks - slider.leftClicks
+  }
 
+  return {
+    numFix: numFix,
+    getMoreImages: getMoreImages,
+    makeMoreImages: makeMoreImages,
+    reUpLeft: reUpLeft,
+    reUpRight: reUpRight,
+    getWidth: getWidth,
+    enoughImagesMoved: enoughImagesMoved,
+    differenceInClicks: differenceInClicks
+  }
 
+})()
 
 // clicks ///////////////////
 /////////////////////////////
@@ -241,7 +272,7 @@ $('#triangle-right').on('click', function(){
     return
   }else{
     slider.onTheMove = true
-    leftSlide()
+    sliderAnimate.leftSlide()
     slider.leftClicks += 1
   }
 })
@@ -251,7 +282,7 @@ $('#triangle-left').on('click', function(){
     return
   }else{
     slider.onTheMove = true
-    rightSlide()
+    sliderAnimate.rightSlide()
     slider.rightClicks += 1
   }
 })
