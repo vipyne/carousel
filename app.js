@@ -147,9 +147,9 @@ function setArrowPosition(){
 // image slider animation ///
 /////////////////////////////
 /////////////////////////////
-var sliderAnimate = (function(slid){
+var sliderAnimate = (function(){
 
-  var rightSlide = function(){
+  var rightSlide = function(){`
     var marginLeft = Math.abs(sliderUtilities.numFix($('.slider').css('margin-left')))
     var sliderOriginalWidth = slider.totalImages * slider.imageWidth
     if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
@@ -158,7 +158,7 @@ var sliderAnimate = (function(slid){
       sliderUtilities.reUpRight()
       $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
       var ml = $('.slider').css('margin-left')
-      var basicMove =sliderUtilities.numFix(ml)
+      var basicMove = sliderUtilities.numFix(ml)
       $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
     }
     this.animateRight()
