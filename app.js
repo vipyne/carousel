@@ -1,36 +1,42 @@
-$(document).ready(function(){
+// $(document).ready(function(){
+/////////////////////////////
+// (function(window, document, undfined){
+
+// ajax api call ////////////
+/////////////////////////////
 /////////////////////////////
 
+var api = (function(){
 
-// ajax api calls ///////////
-/////////////////////////////
-/////////////////////////////
+  var apiKey = '0a40a13fd9d531110b4d6515ef0d6c529acdb59e81194132356a1b8903790c18'
+  var tokenQuery = '?auth_token='
+  var apiCall = 'https://photorankapi-a.akamaihd.net/customers/215757/media/recent'
+  var url = apiCall + tokenQuery + apiKey
 
-var apiKey = '0a40a13fd9d531110b4d6515ef0d6c529acdb59e81194132356a1b8903790c18'
-var tokenQuery = '?auth_token='
-var apiCall = 'https://photorankapi-a.akamaihd.net/customers/215757/media/recent'
-var url = apiCall + tokenQuery + apiKey
-
-$.ajaxSetup({
-  headers: { 'Accept': 'application/vnd.olapic.v2.1+json' }
-})
-
-$.ajax({
-  type: 'get',
-  url: url,
-  dataType: 'json'
-})
-  .done(function(data){
-    processAjax.getImages(data)
-    processAjax.getCustomerName(data)
-    imageSliderInit()
-    processAjax.getNextUrl(data)
-    $('a').imageLightbox()
-  })
-  .fail(function(msg){
-    console.log('error', msg.responseText)
+  $.ajaxSetup({
+    headers: { 'Accept': 'application/vnd.olapic.v2.1+json' }
   })
 
+  var caller = function(url, action){
+    $.ajax({
+      type: 'get',
+      url: url,
+      dataType: 'json',
+      success: function(data){
+        action(data)
+      },
+      fail: function(message){
+        processAjax.err(message)
+      }
+    })
+  }
+
+  return {
+    url: url,
+    caller: caller
+  }
+
+})()
 
 
 
@@ -39,9 +45,20 @@ $.ajax({
 /////////////////////////////
 var processAjax = (function(){
 
+  var init = function(data){
+    getImages(data)
+    getCustomerName(data)
+    imageSliderInit()
+    getNextUrl(data)
+    $('a').imageLightbox() // vendor
+    api.caller(slider.next, processAjax.getNewImages)
+  }
+
   var getCustomerName = function(data){
     var customer = data.data._embedded.customer
-    var customerName = customer.name.toUpperCase()
+    if(customer != undefined){
+      var customerName = customer.name.toUpperCase()
+    }
     $('.customer').append(customerName + '\'s recent media feed'.toUpperCase() )
   }
 
@@ -63,30 +80,18 @@ var processAjax = (function(){
     })
   }
 
-  var getNextUrl = function(data){
-    var link = data.data._links.next.href
-    slider.next = '&next_id=' + link.match(/next_id=(.*)/)[1]
+  var getNewImages = function(data){
+    getImages(data)
+    getNextUrl(data)
   }
 
-  var getNewImages = function(){
-    $.ajax({
-    type: 'get',
-    url: url + slider.next,
-    dataType: 'json'
-  })
-    .done(function(data){
-      processAjax.getImages(data)
-      processAjax.getNextUrl(data)
-      $('a').imageLightbox()
-    })
-    .fail(function(msg){
-      console.log('error', msg.responseText)
-    })
+  var getNextUrl = function(data){
+    var link = data.data._links.next.href
+    slider.next = api.url + '&next_id=' + link.match(/next_id=(.*)/)[1]
   }
 
   return {
-    getCustomerName: getCustomerName,
-    getImages: getImages,
+    init: init,
     getNextUrl: getNextUrl,
     getNewImages: getNewImages
   }
@@ -149,32 +154,34 @@ function setArrowPosition(){
 /////////////////////////////
 var sliderAnimate = (function(){
 
-  var rightSlide = function(){`
-    var marginLeft = Math.abs(sliderUtilities.numFix($('.slider').css('margin-left')))
+  var $slider = $('.slider')
+
+  var rightSlide = function(){
+    var marginLeft = Math.abs(sliderUtilities.numFix($slider.css('margin-left')))
     var sliderOriginalWidth = slider.totalImages * slider.imageWidth
     if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
-      (slider.rightClicks != 0 && differenceInClicks() % slider.totalImages == 0) ||
-      differenceInClicks() == 0 || marginLeft <= slider.sWidth){
+      (slider.rightClicks != 0 && sliderUtilities.differenceInClicks() % slider.totalImages == 0) ||
+      sliderUtilities.differenceInClicks() == 0 || marginLeft <= slider.sWidth){
       sliderUtilities.reUpRight()
-      $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
-      var ml = $('.slider').css('margin-left')
+      $slider.css('width', $slider.children().length * slider.imageWidth)
+      var ml = $slider.css('margin-left')
       var basicMove = sliderUtilities.numFix(ml)
-      $('.slider').css('margin-left', -(basicMove + sliderOriginalWidth) )
+      $slider.css('margin-left', -(basicMove + sliderOriginalWidth) )
     }
-    this.animateRight()
+    animateRight()
   }
 
   var leftSlide = function(){
-    var totalWidth =sliderUtilities.numFix($('.slider').css('width'))
-    var marginLeft = Math.abs(sliderUtilities.numFix($('.slider').css('margin-left')))
+    var totalWidth = sliderUtilities.numFix($slider.css('width'))
+    var marginLeft = Math.abs(sliderUtilities.numFix($slider.css('margin-left')))
     if(totalWidth < marginLeft + slider.sWidth * 2){
       sliderUtilities.reUpLeft()
     }
-    this.animateLeft()
+    animateLeft()
   }
 
   var animateRight = function(){
-    $('.slider').animate({
+    $slider.animate({
       marginLeft: '+=' + slider.imageWidth * slider.numOfImages + 'px'
     }, 'slow')
     setTimeout(function(){
@@ -183,7 +190,7 @@ var sliderAnimate = (function(){
   }
 
   var animateLeft = function(){
-    $('.slider').animate({
+    $slider.animate({
       marginLeft: '-=' + slider.imageWidth * slider.numOfImages + 'px'
     }, 'slow')
     setTimeout(function(){
@@ -191,11 +198,29 @@ var sliderAnimate = (function(){
     }, 750)
   }
 
+  var MoveLeft = function(){
+  if(slider.onTheMove){
+    return
+  }else{
+    slider.onTheMove = true
+    leftSlide()
+    slider.leftClicks += 1
+  }
+}
+
+var MoveRight = function(){
+  if(slider.onTheMove){
+    return
+  }else{
+    slider.onTheMove = true
+    rightSlide()
+    slider.rightClicks += 1
+  }
+}
+
   return {
-    rightSlide: rightSlide,
-    leftSlide: leftSlide,
-    animateRight: animateRight,
-    animateLeft: animateLeft
+    MoveLeft: MoveLeft,
+    MoveRight: MoveRight
   }
 
 })()
@@ -228,12 +253,12 @@ var sliderUtilities = (function(){
   }
 
   var reUpLeft = function(){
-    processAjax.getNewImages()
+    api.caller(slider.next, processAjax.getNewImages)
   }
 
   var reUpRight = function(){
-    this.getMoreImages(slider.loop)
-    this.makeMoreImages()
+    getMoreImages(slider.loop)
+    makeMoreImages()
   }
 
   var getWidth = function(){
@@ -263,30 +288,20 @@ var sliderUtilities = (function(){
 
 })()
 
-// clicks ///////////////////
+// brains ///////////////////
 /////////////////////////////
 /////////////////////////////
 
+api.caller(api.url, processAjax.init) // initial call
+
 $('#triangle-right').on('click', function(){
-  if(slider.onTheMove){
-    return
-  }else{
-    slider.onTheMove = true
-    sliderAnimate.leftSlide()
-    slider.leftClicks += 1
-  }
+  sliderAnimate.MoveLeft()
 })
 
 $('#triangle-left').on('click', function(){
-  if(slider.onTheMove){
-    return
-  }else{
-    slider.onTheMove = true
-    sliderAnimate.rightSlide()
-    slider.rightClicks += 1
-  }
+  sliderAnimate.MoveRight()
 })
 
-
+// })(window, document)
 /////////////////////////////
-})
+// })
