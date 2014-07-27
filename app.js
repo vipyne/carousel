@@ -1,6 +1,23 @@
-// $(document).ready(function(){
+$(document).ready(function(){
 /////////////////////////////
-// (function(window, document, undfined){
+
+var $slider = $('.slider')
+
+var slider = {
+  numOfImages: 4,
+  imageWidth: 150,
+  wrapperHeight: 150,
+  rightClicks: 0,
+  leftClicks: 0,
+  totalImages: 0,
+  sWidth: 0,
+  loop: null,
+  loopCopy: null,
+  next: '',
+  onTheMove: false
+}
+
+
 
 // ajax api call ////////////
 /////////////////////////////
@@ -26,7 +43,7 @@ var api = (function(){
         action(data)
       },
       fail: function(message){
-        processAjax.err(message)
+        console.log('error', message.responseText)
       }
     })
   }
@@ -43,15 +60,19 @@ var api = (function(){
 // process ajax /////////////
 /////////////////////////////
 /////////////////////////////
+
 var processAjax = (function(){
 
   var init = function(data){
     getImages(data)
     getCustomerName(data)
-    imageSliderInit()
+    sliderInit.set()
     getNextUrl(data)
     $('a').imageLightbox() // vendor
-    api.caller(slider.next, processAjax.getNewImages)
+    // this breaks things...
+    // api.caller(slider.next, processAjax.getNewImages)
+    // but want to add more images a click before they are needed,
+    // so prolly have to toy with the logic below..
   }
 
   var getCustomerName = function(data){
@@ -74,9 +95,9 @@ var processAjax = (function(){
         var full = object.images.normal
         var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
         var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
-        $('.slider').append(fullDOMString)
+        $slider.append(fullDOMString)
       }
-      $('.slider').css('width', $('.slider').children().length * slider.imageWidth)
+      $slider.css('width', $slider.children().length * slider.imageWidth)
     })
   }
 
@@ -99,53 +120,48 @@ var processAjax = (function(){
 })()
 
 
+
 // image slider init ////////
 /////////////////////////////
 /////////////////////////////
 
-var slider = {
-  numOfImages: 4,
-  imageWidth: 150,
-  wrapperHeight: 150,
-  rightClicks: 0,
-  leftClicks: 0,
-  totalImages: 0,
-  sWidth: 0,
-  loop: null,
-  loopCopy: null,
-  next: '',
-  onTheMove: false
-}
+var sliderInit = (function(){
 
-function imageSliderInit(){
-  processImages() // moot for now cause of thumbnails in api, but useful if api changes
-  setArrowPosition()
-  slider.totalImages = $('.slider')[0].children.length
-  $('.wrapper').css('width', slider.imageWidth * slider.numOfImages)
-  $('.wrapper').css('height', slider.wrapperHeight)
-  $('.slider').css('width', slider.imageWidth * slider.totalImages)
-  $('.arrow').css('display', 'inherit')
-  slider.sWidth = slider.numOfImages * slider.imageWidth
-  slider.loop = $('.slider').clone()
-  slider.loopCopy = $('.slider').clone()
-}
+  var set = function(){
+    processImages() // moot for now cause of thumbnails in api, but useful if api changes
+    setArrowPosition()
+    slider.totalImages = $slider[0].children.length
+    $('.wrapper').css('width', slider.imageWidth * slider.numOfImages)
+    $('.wrapper').css('height', slider.wrapperHeight)
+    $slider.css('width', slider.imageWidth * slider.totalImages)
+    $('.arrow').css('display', 'inherit')
+    slider.sWidth = slider.numOfImages * slider.imageWidth
+    slider.loop = $slider.clone()
+    slider.loopCopy = $slider.clone()
+  }
 
-function processImages(){
-  var originalWidth, imageHeight, newImageHeight
-  $.each($('.image-to-slide'), function(index, image){
-    originalWidth = image.offsetWidth
-    var getHeight = slider.imageWidth / originalWidth
-    imageHeight = image.offsetHeight
-    newImageHeight = imageHeight * getHeight
-    image.style.height = newImageHeight + 'px'
-  })
-}
+  var processImages = function(){
+    var originalWidth, imageHeight, newImageHeight
+    $.each($('.image-to-slide'), function(index, image){
+      originalWidth = image.offsetWidth
+      var getHeight = slider.imageWidth / originalWidth
+      imageHeight = image.offsetHeight
+      newImageHeight = imageHeight * getHeight
+      image.style.height = newImageHeight + 'px'
+    })
+  }
 
-function setArrowPosition(){
-  var arrowPosition = (slider.wrapperHeight / 2) - 15 // arrows are 30px tall
-  $('#triangle-right').css('margin-bottom', arrowPosition)
-  $('#triangle-left').css('margin-bottom', arrowPosition)
-}
+  var setArrowPosition = function(){
+    var arrowPosition = (slider.wrapperHeight / 2) - 15 // arrows are 30px tall
+    $('#triangle-right').css('margin-bottom', arrowPosition)
+    $('#triangle-left').css('margin-bottom', arrowPosition)
+  }
+
+  return {
+    set: set
+  }
+
+})()
 
 
 
@@ -154,28 +170,26 @@ function setArrowPosition(){
 /////////////////////////////
 var sliderAnimate = (function(){
 
-  var $slider = $('.slider')
-
   var rightSlide = function(){
-    var marginLeft = Math.abs(sliderUtilities.numFix($slider.css('margin-left')))
+    var marginLeft = Math.abs(utility.numFix($slider.css('margin-left')))
     var sliderOriginalWidth = slider.totalImages * slider.imageWidth
     if((slider.rightClicks == 0 && slider.leftClicks == 0) ||
-      (slider.rightClicks != 0 && sliderUtilities.differenceInClicks() % slider.totalImages == 0) ||
-      sliderUtilities.differenceInClicks() == 0 || marginLeft <= slider.sWidth){
-      sliderUtilities.reUpRight()
+      (slider.rightClicks != 0 && utility.differenceInClicks() % slider.totalImages == 0) ||
+      utility.differenceInClicks() == 0 || marginLeft <= slider.sWidth){
+      utility.reUpRight()
       $slider.css('width', $slider.children().length * slider.imageWidth)
       var ml = $slider.css('margin-left')
-      var basicMove = sliderUtilities.numFix(ml)
+      var basicMove = utility.numFix(ml)
       $slider.css('margin-left', -(basicMove + sliderOriginalWidth) )
     }
     animateRight()
   }
 
   var leftSlide = function(){
-    var totalWidth = sliderUtilities.numFix($slider.css('width'))
-    var marginLeft = Math.abs(sliderUtilities.numFix($slider.css('margin-left')))
+    var totalWidth = utility.numFix($slider.css('width'))
+    var marginLeft = Math.abs(utility.numFix($slider.css('margin-left')))
     if(totalWidth < marginLeft + slider.sWidth * 2){
-      sliderUtilities.reUpLeft()
+      utility.reUpLeft()
     }
     animateLeft()
   }
@@ -199,24 +213,24 @@ var sliderAnimate = (function(){
   }
 
   var MoveLeft = function(){
-  if(slider.onTheMove){
-    return
-  }else{
-    slider.onTheMove = true
-    leftSlide()
-    slider.leftClicks += 1
+    if(slider.onTheMove){
+      return
+    }else{
+      slider.onTheMove = true
+      leftSlide()
+      slider.leftClicks += 1
+    }
   }
-}
 
-var MoveRight = function(){
-  if(slider.onTheMove){
-    return
-  }else{
-    slider.onTheMove = true
-    rightSlide()
-    slider.rightClicks += 1
+  var MoveRight = function(){
+    if(slider.onTheMove){
+      return
+    }else{
+      slider.onTheMove = true
+      rightSlide()
+      slider.rightClicks += 1
+    }
   }
-}
 
   return {
     MoveLeft: MoveLeft,
@@ -226,10 +240,11 @@ var MoveRight = function(){
 })()
 
 
+
 // image slider util ////////
 /////////////////////////////
 /////////////////////////////
-var sliderUtilities = (function(){
+var utility = (function(){
 
   var numFix = function(width){
     num = []
@@ -244,7 +259,7 @@ var sliderUtilities = (function(){
 
   var getMoreImages = function(loop){
     $.each(loop.children(), function(index, image){
-      $('.slider').append(image)
+      $slider.append(image)
     })
   }
 
@@ -262,7 +277,7 @@ var sliderUtilities = (function(){
   }
 
   var getWidth = function(){
-    var $width = $('.slider').css('width')
+    var $width = $slider.css('width')
     return this.numFix($width)
   }
 
@@ -288,6 +303,8 @@ var sliderUtilities = (function(){
 
 })()
 
+
+
 // brains ///////////////////
 /////////////////////////////
 /////////////////////////////
@@ -302,6 +319,5 @@ $('#triangle-left').on('click', function(){
   sliderAnimate.MoveRight()
 })
 
-// })(window, document)
 /////////////////////////////
-// })
+})
