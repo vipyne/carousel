@@ -91,11 +91,19 @@ var processAjax = (function(){
     }
     $.each(olapicImages, function(index, object){
       if(object !== undefined){
-        var thumb = object.images.thumbnail
-        var full = object.images.normal
-        var thumbDOMString = "<img class='image-to-slide' src=" + thumb + ">"
-        var fullDOMString = "<li class='lists'><a href=" + full + ">" + thumbDOMString + "</a></li>"
-        $slider.append(fullDOMString)
+        var thumb, full, img, a, li
+        thumb = object.images.thumbnail
+        full = object.images.normal
+        img = document.createElement('img')
+        img.src = thumb
+        img.className = 'image-to-slide'
+        a = document.createElement('a')
+        a.href = full
+        a.appendChild(img)
+        li = document.createElement('li')
+        li.className = 'lists'
+        li.appendChild(a)
+        $('.slider').append(li)
       }
       $slider.css('width', $slider.children().length * slider.imageWidth)
     })
