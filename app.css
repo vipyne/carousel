@@ -91,9 +91,15 @@ h2 {
   margin-left: 5px;
 }
 
+#triangle-left:hover,
+#triangle-right:hover {
+  cursor: pointer;
+}
+
 #triangle-left:hover {
   border-right: 30px solid #43E1A7;
 }
+
 #triangle-right:hover {
   border-left: 30px solid #43E1A7;
 }
