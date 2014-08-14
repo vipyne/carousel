@@ -196,8 +196,10 @@ var sliderAnimate = (function(){
   var leftSlide = function(){
     var totalWidth = utility.numFix($slider.css('width'))
     var marginLeft = Math.abs(utility.numFix($slider.css('margin-left')))
-    if(totalWidth < marginLeft + slider.sWidth * 2){
-      utility.reUpLeft()
+    if(totalWidth - slider.sWidth < marginLeft + slider.sWidth * 2){
+      setTimeout(function(){
+        utility.reUpLeft()
+      }, 300)
     }
     animateLeft()
   }
@@ -222,7 +224,9 @@ var sliderAnimate = (function(){
 
   var MoveLeft = function(){
     if(slider.onTheMove){
-      return
+      setTimeout(function(){
+        return
+      }, 300)
     }else{
       slider.onTheMove = true
       leftSlide()
@@ -232,7 +236,9 @@ var sliderAnimate = (function(){
 
   var MoveRight = function(){
     if(slider.onTheMove){
-      return
+      setTimeout(function(){
+        return
+      }, 300)
     }else{
       slider.onTheMove = true
       rightSlide()
